@@ -64,16 +64,87 @@ impl CPU {
     }
 }
 
+pub struct MMU {
+    pub bootrom: Bootrom,
+    pub memory: Memory
+}
+
+pub struct Bootrom {
+    pub is_active: bool,
+    pub data: Vec<u8>
+}
+
+impl Bootrom {
+    pub fn new(is_active: bool, rom_buf: Vec<u8>) -> Self {
+        Self {
+            is_active: is_active,
+            data: rom_buf
+        }
+    }
+}
+
+
+impl MMU {
+    pub fn new(bootrom: bool) -> Self {
+        let mut f = File::open("./src/dmg_boot.bin").unwrap();
+        let mut rom = Vec::new();
+        f.read_to_end(&mut rom);
+        Self {
+            bootrom: Bootrom::new(bootrom, rom),
+            memory: Memory::new()
+        }
+    }
+
+    pub fn read(&self, addr: u16) -> u8 {
+        match addr {
+            0x0000..=0x7FFF => {
+                if self.bootrom.is_active & (addr < 0x1000) {
+                    self.bootrom.data[addr as usize]
+                } else {
+                    self.memory.data[addr as usize]
+                }
+            }
+            _ => 0
+        }
+    }
+}
+
+pub struct Memory {
+    pub data: Vec<u8>
+}
+
+impl Memory {
+    pub fn new() -> Self {
+        Self {
+            data: Vec::new()
+        }
+    }
+}
+
+pub struct GB {
+    cpu: CPU,
+    mmu: MMU
+}
+
+impl GB {
+    pub fn new() -> Self {
+        Self {
+            cpu: CPU::new(),
+            mmu: MMU::new(true)
+        }
+    }
+    pub fn emulate_cycle(&self) {
+        if self.mmu.bootrom.is_active {
+            for &byte in self.mmu.bootrom.data.iter() {
+                println!("{:#X}", byte as u16)
+            }
+        }
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
 
-    let mut f = File::open(filename).unwrap();
-    let mut rom = Vec::new();
-
-    f.read_to_end(&mut rom);
-
-    for byte in rom.iter() {
-        println!("{:#?}", byte);
-    }
+    let gb = GB::new();
+    gb.emulate_cycle();
 }
