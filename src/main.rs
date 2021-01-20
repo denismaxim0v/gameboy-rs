@@ -3,6 +3,9 @@ mod gb;
 use gb::gb::GB;
 
 fn main() {
-    let gb = GB::new();
-    gb.emulate_cycle();
+    let mut gb = GB::new();
+    let quit = 0;
+    while quit == 0{
+        gb.emulate_cycle();
+    }
 }

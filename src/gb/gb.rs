@@ -13,11 +13,11 @@ impl GB {
           mmu: MMU::new(true)
       }
   }
-  pub fn emulate_cycle(&self) {
-      if self.mmu.bootrom.is_active {
-          for &byte in self.mmu.bootrom.data.iter() {
-              println!("{:#X}", byte as u16)
-          }
+  pub fn emulate_cycle(&mut self) {
+      let byte = self.cpu.fetch(&self.mmu);
+      match byte{
+          0x31 => println!("{:?}", "found 0x3100"),
+          _ => panic!("unknown opcode {:#X}", byte)
       }
   }
 }
