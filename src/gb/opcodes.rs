@@ -22,6 +22,7 @@ pub enum Condition {
 }
 
 pub enum Opcode {
+  PREFIX,
   ADC(Operand, Operand),
   ADD(Operand, Operand),
   AND(Operand, Operand),
@@ -37,7 +38,7 @@ pub enum Opcode {
   HALT,
   INC(Operand),
   JP(Condition, Operand),
-  JR(Operand, Condition),
+  JR(Condition, Operand),
   LD(Operand, Operand),
   LDD(Operand, Operand),
   LDI(Operand, Operand),
