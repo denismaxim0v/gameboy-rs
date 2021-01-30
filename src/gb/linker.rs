@@ -267,7 +267,7 @@ pub fn link(opcode: u8) -> Option<Opcode> {
   }
 }
 
-pub fn decode_prefix(opcode: u8) -> Opcode {
+pub fn link_prefix(opcode: u8) -> Opcode {
   use Opcode::*;
   use Operand::*;
 

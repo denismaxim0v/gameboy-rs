@@ -1,7 +1,7 @@
 use super::registers::Registers;
 use super::mmu::MMU;
 pub struct CPU {
-  registers: Registers,
+  pub registers: Registers,
 }
 
 impl CPU {
