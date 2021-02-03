@@ -8,4 +8,12 @@ impl Memory {
           data: Vec::new()
       }
   }
+
+  pub fn read(&self, addr: u16) -> u8 {
+    self.data[addr as usize]
+  }
+
+  pub fn write(&mut self, addr: u16, v: u8) {
+    self.data[addr as usize] = v
+  }
 }
