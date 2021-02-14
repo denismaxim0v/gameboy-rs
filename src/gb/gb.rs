@@ -2,7 +2,6 @@ use super::cpu::CPU;
 use super::linker::{link, link_prefix};
 use super::mmu::MMU;
 use super::opcodes::{Condition, Opcode, Operand};
-use super::registers::{R16, R8};
 use super::memory::Memory;
 
 pub struct GB {
@@ -24,7 +23,26 @@ impl GB {
 
       v
     }
+
+    fn imm_i8(&mut self, mem: Memory) -> i8 {
+        let v = mem.read(self.cpu.registers.pc);
+        self.cpu.registers.pc = self.cpu.registers.pc.wrapping_add(1);
+
+        v as i8
+    }
+
+    fn imm_u16(&mut self, mem: Memory) -> u16 {
+        // TODO
+
+        0
+    }
+
     pub fn emulate_cycle(&mut self) -> u32 {
+        use Opcode::*;
+        use Operand::*;
+        use super::registers::R16;
+        use super::registers::R8;
+
         let byte = self.cpu.fetch(&self.mmu);
 
         let opcode = match link(byte) {
@@ -34,10 +52,16 @@ impl GB {
         };
 
         let cycles = match opcode {
-            Opcode::ADC(Operand::Reg8(R8::A), Operand::Reg8(r)) => {
+            ADC(Reg8(A), Reg8(r)) => {
                 let v = self.cpu.registers.get_r8(r);
-                println!("found opcode");
+                println!("found opcode ADC");
                 1
+            }
+            ADC(Reg8(A), Mem(HL)) => {
+                let a = self.cpu.registers.get_r16(HL);
+                let v = self.mmu.read(a);
+                println!("found opcode ADC");
+                2
             }
             opcode => panic!("uniplemented"),
         };
