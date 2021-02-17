@@ -1,8 +1,8 @@
 use super::cpu::CPU;
 use super::linker::{link, link_prefix};
+use super::memory::Memory;
 use super::mmu::MMU;
 use super::opcodes::{Condition, Opcode, Operand};
-use super::memory::Memory;
 
 pub struct GB {
     cpu: CPU,
@@ -18,10 +18,10 @@ impl GB {
     }
     // immediates
     fn imm_u8(&mut self, mem: Memory) -> u8 {
-      let v = mem.read(self.cpu.registers.pc);
-      self.cpu.registers.pc = self.cpu.registers.pc.wrapping_add(1);
+        let v = mem.read(self.cpu.registers.pc);
+        self.cpu.registers.pc = self.cpu.registers.pc.wrapping_add(1);
 
-      v
+        v
     }
 
     fn imm_i8(&mut self, mem: Memory) -> i8 {
@@ -32,21 +32,22 @@ impl GB {
     }
 
     fn imm_u16(&mut self, mem: Memory) -> u16 {
-        // TODO
+        let v = mem.read_word(self.cpu.registers.pc);
+        self.cpu.registers.pc = self.cpu.registers.pc.wrapping_add(2);
 
-        0
+        v
     }
 
     pub fn emulate_cycle(&mut self) -> u32 {
+        use super::registers::R16::*;
+        use super::registers::R8::*;
         use Opcode::*;
         use Operand::*;
-        use super::registers::R16;
-        use super::registers::R8;
 
         let byte = self.cpu.fetch(&self.mmu);
 
         let opcode = match link(byte) {
-            Some(Opcode::PREFIX) => link_prefix(byte),
+            Some(PREFIX) => link_prefix(byte),
             Some(opcode) => opcode,
             None => panic!("Unknown opcode {:#X}", byte),
         };

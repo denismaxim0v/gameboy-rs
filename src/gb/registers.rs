@@ -63,22 +63,22 @@ impl Registers {
     }
 
     pub fn get_r16(&self, reg: R16) -> u16 {
-      match reg {
-      R16::SP => self.sp,
-      R16::PC => self.pc,
-      reg => {
-        let (h, l) = match reg {
-          R16::AF => (self.a, self.flag.to_u8()),
-          R16::BC => (self.b, self.c),
-          R16::DE => (self.d, self.e),
-          R16::HL => (self.h, self.l),
-          _ => panic!("invalid match")
-        };
+        match reg {
+            R16::SP => self.sp,
+            R16::PC => self.pc,
+            reg => {
+                let (h, l) = match reg {
+                    R16::AF => (self.a, self.flag.to_u8()),
+                    R16::BC => (self.b, self.c),
+                    R16::DE => (self.d, self.e),
+                    R16::HL => (self.h, self.l),
+                    _ => panic!("invalid match"),
+                };
 
-        (h as u16) << 8 | (l as u16)
-      }
+                (h as u16) << 8 | (l as u16)
+            }
+        }
     }
-  }
 }
 
 pub struct FlagRegister {
