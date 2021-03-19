@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum R8 {
     A,
     B,
@@ -9,6 +10,7 @@ pub enum R8 {
     L,
 }
 
+#[derive(Debug)]
 pub enum R16 {
     AF,
     BC,
@@ -62,6 +64,19 @@ impl Registers {
         }
     }
 
+    pub fn set_r8(&mut self, reg: R8, v: u8) {
+        match reg {
+            R8::A => self.a = v,
+            R8::B => self.b = v,
+            R8::C => self.c = v,
+            R8::D => self.d = v,
+            R8::E => self.e = v,
+            R8::H => self.h = v,
+            R8::L => self.l = v,
+            R8::F => self.flag.set(v),
+        };
+    }
+
     pub fn get_r16(&self, reg: R16) -> u16 {
         match reg {
             R16::SP => self.sp,
@@ -78,6 +93,36 @@ impl Registers {
                 (h as u16) << 8 | (l as u16)
             }
         }
+    }
+
+    pub fn set_r16(&mut self, reg: R16, v: u16) {
+        let h = (v >> 8) as u8;
+        let l = (v & 0xFF) as u8;
+
+        match reg {
+            R16::AF => {
+                self.a = h;
+                self.flag.set(l);
+            }
+            R16::BC => {
+                self.b = h;
+                self.c = l;
+            }
+            R16::DE => {
+                self.d = h;
+                self.e = l;
+            }
+            R16::HL => {
+                self.h = h;
+                self.l = l;
+            }
+            R16::SP => {
+                self.sp = v;
+            }
+            R16::PC => {
+                self.pc = v;
+            }
+        };
     }
 }
 
@@ -96,6 +141,13 @@ impl FlagRegister {
             half_carry: false,
             carry: false,
         }
+    }
+
+    pub fn set(&mut self, v: u8) {
+        self.zero = (v & (1 << 7)) != 0;
+        self.subtract = (v & (1 << 6)) != 0;
+        self.half_carry = (v & (1 << 5)) != 0;
+        self.carry = (v & (1 << 4)) != 0;
     }
 
     pub fn to_u8(&self) -> u8 {

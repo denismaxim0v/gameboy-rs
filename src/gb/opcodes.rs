@@ -1,5 +1,6 @@
 use super::registers::{R16, R8};
 
+#[derive(Debug)]
 pub enum Operand {
     ImmI8,
     ImmU16,
@@ -13,6 +14,7 @@ pub enum Operand {
     ZMemImmU8,
 }
 
+#[derive(Debug)]
 pub enum Condition {
     Always,
     Z,
@@ -21,6 +23,7 @@ pub enum Condition {
     NC,
 }
 
+#[derive(Debug)]
 pub enum Opcode {
     PREFIX,
     ADC(Operand, Operand),

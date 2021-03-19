@@ -6,3 +6,4 @@ pub mod memory;
 pub mod mmu;
 pub mod opcodes;
 pub mod registers;
+pub mod alu;

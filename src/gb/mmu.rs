@@ -31,4 +31,7 @@ impl MMU {
             _ => 0,
         }
     }
+    pub fn get_mut_mem(&mut self) -> &mut Memory {
+        &mut self.memory
+    }
 }
