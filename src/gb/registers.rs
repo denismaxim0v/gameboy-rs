@@ -128,7 +128,7 @@ impl Registers {
 
 pub struct FlagRegister {
     pub zero: bool,
-    pub subtract: bool,
+    pub negative: bool,
     pub half_carry: bool,
     pub carry: bool,
 }
@@ -137,7 +137,7 @@ impl FlagRegister {
     pub fn new() -> Self {
         Self {
             zero: false,
-            subtract: false,
+            negative: false,
             half_carry: false,
             carry: false,
         }
@@ -145,14 +145,14 @@ impl FlagRegister {
 
     pub fn set(&mut self, v: u8) {
         self.zero = (v & (1 << 7)) != 0;
-        self.subtract = (v & (1 << 6)) != 0;
+        self.negative = (v & (1 << 6)) != 0;
         self.half_carry = (v & (1 << 5)) != 0;
         self.carry = (v & (1 << 4)) != 0;
     }
 
     pub fn to_u8(&self) -> u8 {
         (if self.zero { 1 << 7 } else { 0 })
-            | (if self.subtract { 1 << 6 } else { 0 })
+            | (if self.negative { 1 << 6 } else { 0 })
             | (if self.half_carry { 1 << 5 } else { 0 })
             | (if self.carry { 1 << 4 } else { 0 })
     }

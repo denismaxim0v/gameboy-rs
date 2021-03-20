@@ -3,7 +3,7 @@ use super::registers::Registers;
 use super::memory::Memory;
 use super::linker::{link, link_prefix};
 use super::opcodes::{Condition, Opcode, Operand};
-use super::alu::cp;
+use super::alu::{cp, xor};
 pub struct CPU {
     pub registers: Registers,
 }
@@ -56,7 +56,18 @@ impl CPU {
                 let v = self.imm_u8(mmu);
                 cp(self, v);
                 2
-            }
+            },
+            XOR(Reg8(A), Reg8(A)) => {
+               let v = self.registers.get_r8(A);
+               xor(self, v);
+               1
+            },
+            LDD(Mem(HL), Reg8(A)) => {
+                let addr = self.registers.get_r16(HL);
+                mmu.write(addr, self.registers.a);
+                self.registers.set_r16(HL, addr.wrapping_sub(1));
+                2 
+            },
             opcode => {
                 println!("opcode {:?}", opcode);
                 0

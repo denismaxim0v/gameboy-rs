@@ -31,6 +31,18 @@ impl MMU {
             _ => 0,
         }
     }
+    pub fn write(&mut self, addr: u16, value: u8) {
+        match addr {
+            0x0000..=0x7FFF => {
+                if self.bootrom.is_active & (addr < 0x1000) {
+                    self.bootrom.data[addr as usize] = value;
+                } else {
+                    self.memory.data[addr as usize] = value;
+                }
+            }
+            _ => {}
+        }
+    }
     pub fn get_mut_mem(&mut self) -> &mut Memory {
         &mut self.memory
     }
