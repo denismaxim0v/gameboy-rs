@@ -30,3 +30,7 @@ pub fn xor(cpu: &mut CPU, b: u8) {
     cpu.registers.flag.carry = false;
     cpu.registers.a = a;
 }
+
+pub fn set(_cpu: &mut CPU, a: u8, b: u8) -> u8 {
+  a | (1 << (b as u32))
+}

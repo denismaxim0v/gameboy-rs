@@ -10,7 +10,7 @@ pub struct MMU {
 
 impl MMU {
     pub fn new(bootrom: bool) -> Self {
-        let mut f = File::open("./src/roms/dmg_boot.bin").unwrap();
+        let mut f = File::open("./src/roms/boot.bin").unwrap();
         let mut rom = Vec::new();
         f.read_to_end(&mut rom);
         Self {

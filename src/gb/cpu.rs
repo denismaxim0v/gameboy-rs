@@ -1,9 +1,9 @@
-use super::mmu::MMU;
-use super::registers::Registers;
-use super::memory::Memory;
+use super::alu::{cp, set, xor};
 use super::linker::{link, link_prefix};
+use super::memory::Memory;
+use super::mmu::MMU;
 use super::opcodes::{Condition, Opcode, Operand};
-use super::alu::{cp, xor};
+use super::registers::Registers;
 pub struct CPU {
     pub registers: Registers,
 }
@@ -32,7 +32,7 @@ impl CPU {
         let opcode = match link(byte) {
             Some(PREFIX) => link_prefix(byte),
             Some(opcode) => opcode,
-            None => panic!("Unknown opcode {:#X}", byte),
+            None => NOP
         };
 
         let cycles = match opcode {
@@ -46,32 +46,38 @@ impl CPU {
                 let v = mmu.read(a);
                 println!("found opcode ADC");
                 2
-            },
+            }
             LD(Reg16(dr), ImmU16) => {
                 let v = self.imm_u16(mmu);
                 self.registers.set_r16(dr, v);
                 3
-            },
+            }
             CP(Reg8(A), ImmU8) => {
                 let v = self.imm_u8(mmu);
                 cp(self, v);
                 2
-            },
+            }
             XOR(Reg8(A), Reg8(A)) => {
-               let v = self.registers.get_r8(A);
-               xor(self, v);
-               1
-            },
+                let v = self.registers.get_r8(A);
+                xor(self, v);
+                1
+            }
             LDD(Mem(HL), Reg8(A)) => {
                 let addr = self.registers.get_r16(HL);
                 mmu.write(addr, self.registers.a);
                 self.registers.set_r16(HL, addr.wrapping_sub(1));
-                2 
-            },
+                2
+            }
+            SET(b, Reg8(E)) => {
+                let a = self.registers.get_r8(E);
+                let v = set(self, mmu.read(a as u16), b);
+                mmu.write(a as u16, v);
+                2
+            }
             opcode => {
                 println!("opcode {:?}", opcode);
                 0
-            },
+            }
         };
 
         cycles * 4
