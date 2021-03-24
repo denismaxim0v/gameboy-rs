@@ -111,6 +111,22 @@ impl CPU {
 
         cycles * 4
     }
+    fn cpu_enable_interrupt(&mut self) {
+        self.ime = true;
+        // TODO clock
+    }
+    fn cpu_flag_set_zero(&mut self, value: bool) {
+        self.registers.flag.zero = value;
+    }
+    fn cpu_flag_set_neg(&mut self, value: bool) {
+        self.registers.flag.negative = value;
+    }
+    fn cpu_flag_self_hc(&mut self, value: bool) {
+        self.registers.flag.half_carry = value;
+    }
+    fn cpu_flag_set_carry(&mut self, value: bool) {
+        self.registers.flag.carry = value;
+    }
     // immediates
     fn imm_u8(&mut self, mem: &MMU) -> u8 {
         let v = mem.read(self.registers.pc);
