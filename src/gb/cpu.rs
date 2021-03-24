@@ -6,12 +6,18 @@ use super::opcodes::{Condition, Opcode, Operand};
 use super::registers::Registers;
 pub struct CPU {
     pub registers: Registers,
+    halted: bool,
+    ime: bool,
+    ime_next: bool,
 }
 
 impl CPU {
     pub fn new() -> Self {
         Self {
             registers: Registers::new(),
+            halted: false,
+            ime: false,
+            ime_next: false
         }
     }
 
@@ -52,6 +58,11 @@ impl CPU {
                 self.registers.set_r16(dr, v);
                 3
             }
+            LD(Reg8(A), Reg8(H)) => {
+                let v = self.registers.get_r8(H);
+                self.registers.set_r8(A, v);
+                1
+            },
             CP(Reg8(A), ImmU8) => {
                 let v = self.imm_u8(mmu);
                 cp(self, v);
@@ -74,6 +85,24 @@ impl CPU {
                 mmu.write(a as u16, v);
                 2
             }
+            JR(cond, ImmI8) => {
+                let o = self.imm_i8(mmu);
+                let a = self.add_u16_i8(self.registers.pc, o);
+                if self.check_cond(cond) {
+                    self.registers.pc = a;
+                    3
+                } else {
+                    2
+                }
+            }
+            DI => {
+                self.ime_next = false;
+                1
+            }
+            EI => {
+                self.ime_next = true;
+                1
+            }
             opcode => {
                 println!("opcode {:?}", opcode);
                 0
@@ -90,7 +119,7 @@ impl CPU {
         v
     }
 
-    fn imm_i8(&mut self, mem: Memory) -> i8 {
+    fn imm_i8(&mut self, mem: &MMU) -> i8 {
         let v = mem.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
 
@@ -102,6 +131,10 @@ impl CPU {
         self.registers.pc = self.registers.pc.wrapping_add(2);
 
         v as u16
+    }
+
+    fn add_u16_i8(&self, a: u16, b: i8) -> u16 {
+        ((a as u32 as i32) + b as i32) as u16
     }
 
     fn check_cond(&self, cond: Condition) -> bool {
