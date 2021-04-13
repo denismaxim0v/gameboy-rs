@@ -12,7 +12,7 @@ impl MMU {
     pub fn new(bootrom: bool) -> Self {
         let mut f = File::open("./src/roms/boot.bin").unwrap();
         let mut rom = Vec::new();
-        f.read_to_end(&mut rom);
+        f.read_to_end(&mut rom).unwrap();
         Self {
             bootrom: Bootrom::new(bootrom, rom),
             memory: Memory::new(),
